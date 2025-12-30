@@ -10,14 +10,45 @@ import swaggerSpec from './config/swagger';
 
 const app: Application = express();
 
-// Security middleware
-app.use(helmet());
+// Middleware
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:', 'http:'],
+        connectSrc: ["'self'", 'https://pocket-money-23.netlify.app'],
+      },
+    },
+  })
+);
 
-// CORS configuration
+// CORS configuration - allow requests from frontend
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5001',
+  'http://localhost:5173', // Vite dev server
+  'https://pocket-money-23.netlify.app',
+];
+
 app.use(
   cors({
-    origin: config.corsOrigin,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, Postman, or same-origin)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked request from origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
