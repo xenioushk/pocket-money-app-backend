@@ -22,7 +22,7 @@ export const protect = async (
     }
 
     if (!token) {
-      return next(new AppError('Not authorized to access this route', 401));
+      return next(new AppError('Not authorized to access this route+', 401));
     }
 
     try {
@@ -42,7 +42,7 @@ export const protect = async (
       req.user = result.rows[0];
       next();
     } catch (error) {
-      return next(new AppError('Not authorized to access this route', 401));
+      return next(new AppError('Not authorized to access this route!', 401));
     }
   } catch (error) {
     next(error);

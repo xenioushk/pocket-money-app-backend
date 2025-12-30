@@ -21,13 +21,30 @@ app.use(
   })
 );
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: config.rateLimitWindowMs,
-  max: config.rateLimitMaxRequests,
+// Rate limiting - General API endpoints (relaxed for normal browsing)
+const generalLimiter = rateLimit({
+  windowMs: config.rateLimitWindowMs, // 15 minutes
+  max: config.rateLimitMaxRequests, // configurable in .env
   message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
-app.use('/api/', limiter);
+
+// Strict rate limiting for auth endpoints (prevent brute force)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 attempts per 15 minutes
+  message: 'Too many authentication attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply general limiter to all API routes
+app.use('/api/', generalLimiter);
+
+// Apply strict limiter to auth routes (will be applied on top of general limiter)
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

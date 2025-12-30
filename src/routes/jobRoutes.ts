@@ -17,6 +17,17 @@ const createJobValidation = [
   body('duration').optional().trim(),
   body('city').trim().notEmpty().withMessage('City is required'),
   body('date').isISO8601().withMessage('Valid date is required'),
+  body('status')
+    .optional()
+    .isIn([
+      'active',
+      'inactive',
+      'completed',
+      'pending',
+      'approved',
+      'rejected',
+    ])
+    .withMessage('Valid status is required'),
 ];
 
 const updateJobValidation = [
@@ -28,6 +39,17 @@ const updateJobValidation = [
   body('duration').optional().trim(),
   body('city').optional().trim().notEmpty(),
   body('date').optional().isISO8601(),
+  body('status')
+    .optional()
+    .isIn([
+      'active',
+      'inactive',
+      'completed',
+      'pending',
+      'approved',
+      'rejected',
+    ])
+    .withMessage('Valid status is required'),
 ];
 
 const updateStatusValidation = [
